@@ -1,6 +1,5 @@
 package org.example.kepos
 
-import CustomInputText
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -21,32 +20,12 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import keposmultiplataforma.composeapp.generated.resources.Res
 import keposmultiplataforma.composeapp.generated.resources.compose_multiplatform
 import org.example.kepos.ui.components.GreenButton
+import org.example.kepos.ui.screens.SignInScreen
 
 @Composable
 @Preview
 fun App() {
     MaterialTheme {
-
-        var text by remember { mutableStateOf("") }
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            CustomInputText(
-                value = text,
-                onValueChange = { text = it },
-                placeholder = "Login"
-            )
-            CustomInputText(
-                value = text,
-                onValueChange = { text = it },
-                placeholder = "Senha"
-            )
-            GreenButton("Entrar")
+        SignInScreen()
         }
     }
-}

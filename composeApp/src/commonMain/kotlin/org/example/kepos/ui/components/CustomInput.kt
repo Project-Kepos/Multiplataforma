@@ -1,3 +1,5 @@
+package org.example.kepos.ui.components
+
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -65,7 +67,7 @@ fun CustomInputText(
                 if (value.isEmpty()) {
                     Text(
                         text = placeholder,
-                        color = Color(0xFF2E7D32), // green-600
+                        color = Color(0xFF2E7D32),
                         fontSize = 18.sp
                     )
                 }
