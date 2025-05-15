@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material.*
+import org.example.kepos.ui.themes.KeposColors
 
 @Composable
 fun GreenButton(
@@ -31,12 +32,12 @@ fun GreenButton(
     val isPressed by interactionSource.collectIsPressedAsState()
 
     val backgroundColor by animateColorAsState(
-        targetValue = if (isPressed) Color(0xFFF5F5F5) else Color.White,
+        targetValue = if (isPressed) KeposColors.Green300 else Color.White,
         animationSpec = tween(durationMillis = 1000)
     )
 
-    val borderColor = Color(0xFF00A86B) // verde
-    val textColor = Color(0xFF00A86B)
+    val borderColor = KeposColors.Green600 // verde
+    val textColor = KeposColors.Green600
 
     Box(
         modifier = modifier
@@ -51,7 +52,7 @@ fun GreenButton(
     ) {
         Text(
             text = text,
-            fontSize = 18.sp,
+            fontSize = 23.sp,
             color = textColor
         )
     }

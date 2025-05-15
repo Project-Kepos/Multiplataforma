@@ -1,5 +1,6 @@
 package org.example.kepos
 
+import GreenhouseScreen
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -20,12 +21,14 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import keposmultiplataforma.composeapp.generated.resources.Res
 import keposmultiplataforma.composeapp.generated.resources.compose_multiplatform
 import org.example.kepos.ui.components.GreenButton
+import org.example.kepos.ui.screens.HomeScreen
 import org.example.kepos.ui.screens.SignInScreen
+import org.example.kepos.ui.screens.SignUpScreen
 
 @Composable
 @Preview
 fun App() {
     MaterialTheme {
-        SignInScreen()
+        GreenhouseScreen()
         }
     }

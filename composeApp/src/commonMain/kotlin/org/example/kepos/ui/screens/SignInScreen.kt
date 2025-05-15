@@ -3,13 +3,17 @@ package org.example.kepos.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.example.kepos.ui.components.CustomInputText
 import org.example.kepos.ui.components.GreenButton
 import org.example.kepos.ui.themes.KeposColors
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import org.example.kepos.ui.components.AddDendroBox
+import org.example.kepos.ui.components.DendroBox
+
 
 @Composable
 fun SignInScreen() {
@@ -20,17 +24,17 @@ fun SignInScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 24.dp),
+            .padding(horizontal = 35.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Text(
             text = "Fazer Login",
-            fontSize = 32.sp,
+            fontSize = 40.sp,
             color = KeposColors.Green600
         )
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(50.dp))
 
         CustomInputText(
             value = email,
@@ -44,6 +48,8 @@ fun SignInScreen() {
             placeholder = "Senha"
         )
 
+        Spacer(modifier = Modifier.height(30.dp))
+
         GreenButton(
             text = "Entrar",
             onClick = {
@@ -55,16 +61,17 @@ fun SignInScreen() {
             }
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(0.6f),
-            horizontalArrangement = Arrangement.SpaceBetween
+        // Centralizando os dois links
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = "Esqueci minha senha",
                 color = KeposColors.Green600
             )
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "Criar conta",
                 color = KeposColors.Green600
@@ -72,12 +79,15 @@ fun SignInScreen() {
         }
 
         message?.let {
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(30.dp))
             Text(
                 text = it,
                 fontSize = 14.sp,
                 color = KeposColors.Gray100
             )
         }
+        DendroBox("asd","w")
+        AddDendroBox()
     }
 }
+

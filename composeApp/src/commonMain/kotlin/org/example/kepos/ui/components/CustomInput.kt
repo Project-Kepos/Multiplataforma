@@ -17,9 +17,10 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.material.*
+import androidx.compose.material.Text
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import org.example.kepos.ui.themes.KeposColors
 
 @Composable
 fun CustomInputText(
@@ -32,14 +33,14 @@ fun CustomInputText(
     val isFocused by interactionSource.collectIsFocusedAsState()
 
     val borderColor by animateColorAsState(
-        targetValue = if (isFocused) Color(0xFF81C784) else Color(0xFF2E7D32),
+        targetValue = if (isFocused) KeposColors.Green300 else KeposColors.Green600,
         animationSpec = tween(durationMillis = 500)
     )
 
     Box(
         modifier = modifier
-            .fillMaxWidth(0.6f)
-            .padding(vertical = 12.dp)
+            .fillMaxWidth() // LARGURA TOTAL
+            .padding(vertical = 16.dp)
             .drawBehind {
                 val strokeWidth = 3.dp.toPx()
                 val y = size.height - strokeWidth / 2
@@ -58,7 +59,7 @@ fun CustomInputText(
             interactionSource = interactionSource,
             textStyle = TextStyle(
                 color = Color.Black,
-                fontSize = 18.sp
+                fontSize = 28.sp
             ),
             modifier = Modifier
                 .fillMaxWidth()
@@ -67,8 +68,8 @@ fun CustomInputText(
                 if (value.isEmpty()) {
                     Text(
                         text = placeholder,
-                        color = Color(0xFF2E7D32),
-                        fontSize = 18.sp
+                        color = KeposColors.Green600,
+                        fontSize = 20.sp
                     )
                 }
                 innerTextField()
@@ -76,4 +77,3 @@ fun CustomInputText(
         )
     }
 }
-
