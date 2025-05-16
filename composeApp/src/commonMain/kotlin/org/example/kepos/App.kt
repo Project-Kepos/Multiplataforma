@@ -21,6 +21,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import keposmultiplataforma.composeapp.generated.resources.Res
 import keposmultiplataforma.composeapp.generated.resources.compose_multiplatform
 import org.example.kepos.ui.components.GreenButton
+import org.example.kepos.ui.screens.AddGreenhouse
 import org.example.kepos.ui.screens.HomeScreen
 import org.example.kepos.ui.screens.SignInScreen
 import org.example.kepos.ui.screens.SignUpScreen
@@ -29,6 +30,6 @@ import org.example.kepos.ui.screens.SignUpScreen
 @Preview
 fun App() {
     MaterialTheme {
-        GreenhouseScreen()
+        AddGreenhouse()
         }
     }

@@ -105,6 +105,7 @@ dependencies {
     implementation(libs.androidx.ui.geometry.android)
     implementation(libs.androidx.ui.graphics.android)
     implementation(libs.ui.android)
+    implementation(libs.androidx.foundation.android)
     debugImplementation(compose.uiTooling)
     implementation("androidx.compose.material:material:1.6.0")
     implementation("androidx.compose.foundation:foundation:1.6.0")
