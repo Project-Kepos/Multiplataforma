@@ -22,6 +22,7 @@ uiGeometryAndroid = "1.7.8"
 uiGraphicsAndroid = "1.7.8"
 uiAndroidVersion = "1.8.1"
 foundationAndroid = "1.8.1"
+androidxUiAndroid = "1.8.2"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -44,6 +45,7 @@ androidx-ui-geometry-android = { group = "androidx.compose.ui", name = "ui-geome
 androidx-ui-graphics-android = { group = "androidx.compose.ui", name = "ui-graphics-android", version.ref = "uiGraphicsAndroid" }
 ui-android = { group = "androidx.compose.ui", name = "ui-android", version.ref = "uiAndroidVersion" }
 androidx-foundation-android = { group = "androidx.compose.foundation", name = "foundation-android", version.ref = "foundationAndroid" }
+androidx-compose-ui-ui-android = { group = "androidx.compose.ui", name = "ui-android", version.ref = "androidxUiAndroid" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

@@ -3,26 +3,38 @@ package org.example.kepos.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.shape.RoundedCornerShape
 import org.example.kepos.ui.themes.KeposColors
 
 @Composable
 fun DendroBox(
     dendroName: String,
-    onClick: String
+    // FIX 1: The onClick parameter must be a function type, not Unit.
+    onClick: () -> Unit
 ) {
-    // Simula um efeito ao pressionar (como hover em web)
-    var isPressed by remember { mutableStateOf(false) }
+    // FIX 2: Use InteractionSource to properly handle press and release states.
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    val backgroundColor = if (isPressed) {
+        KeposColors.TransitionGreen
+    } else {
+        KeposColors.Green100
+    }
 
     Box(
         modifier = Modifier
@@ -31,13 +43,17 @@ fun DendroBox(
             .height(179.dp)
             .border(2.dp, KeposColors.Green500, shape = RoundedCornerShape(4.dp))
             .background(
-                color = if (isPressed) KeposColors.TransitionGreen else KeposColors.Green100,
+                color = backgroundColor,
                 shape = RoundedCornerShape(4.dp)
             )
-            .clickable {
-                isPressed = true
-                //onClick()
-            },
+            // FIX 3: Pass the interactionSource and the onClick lambda directly.
+            .clickable(
+                interactionSource = interactionSource,
+                // Pass null for indication to disable the default ripple effect,
+                // since we are using a custom background color change as feedback.
+                indication = null,
+                onClick = onClick
+            ),
         contentAlignment = Alignment.Center
     ) {
         Column(

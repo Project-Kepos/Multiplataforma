@@ -1,5 +1,5 @@
-
 import androidx.compose.foundation.*
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -8,56 +8,218 @@ import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
-import androidx.compose.ui.window.*
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.plugins.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.bodyAsText
+import io.ktor.util.network.*
+import kotlinx.coroutines.launch
+import org.example.kepos.lib.createHttpClient
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
-@Preview
-fun GreenhouseScreen() {
-    val greenhouse = remember {
-        mutableStateOf(
-            GreenhouseData(
-                name = "Dendro 1",
-                temperature = 25,
-                humidity = 89,
-                weather = "Ensolarado",
-                modules = listOf(
-                    ModuleData("Salsa", "Lorem ipsum", 89),
-                    ModuleData("Manjericão", "Lorem ipsum", 89)
-                )
-            )
-        )
+fun GreenhouseScreen(onBack: () -> Unit = {}, id: String) {
+    val client = remember { createHttpClient { /* onSignOut */ } }
+    var greenhouse by remember { mutableStateOf<GreenhouseData?>(null) }
+    var newName by remember { mutableStateOf("") }
+    var showRename by remember { mutableStateOf(false) }
+    var showDisconnect by remember { mutableStateOf(false) }
+    var showNewModule by remember { mutableStateOf(false) }
+    var newModuleName by remember { mutableStateOf("") }
+    var newModuleDesc by remember { mutableStateOf("") }
+    var loading by remember { mutableStateOf(true) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(id) {
+        try {
+            val gh = client.get("/api/v1/dendro/$id").body<GreenhouseData>()
+            greenhouse = gh
+            newName = gh.name
+        } catch (e: ClientRequestException) {
+            val body = e.response.bodyAsText()
+            errorMessage = "Erro ${e.response.status.value}: $body"
+        } catch (e: ServerResponseException) {
+            val body = e.response.bodyAsText()
+            errorMessage = "Erro do servidor (${e.response.status.value}): $body"
+        } catch (e: UnresolvedAddressException) {
+            errorMessage = "Erro de conexão: ${e.message}"
+        } catch (e: Exception) {
+            errorMessage = "Erro inesperado: ${e.message}"
+        } finally {
+            loading = false
+        }
     }
 
-    MaterialTheme {
-        Column(
-            modifier = Modifier.fillMaxSize().padding(32.dp).verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(32.dp)
+    if (loading || greenhouse == null) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                CircularProgressIndicator()
+                if (errorMessage != null) {
+                    Spacer(Modifier.height(16.dp))
+                    Text(errorMessage!!, color = Color.Red)
+                }
+            }
+        }
+        return
+    }
+
+    val gh = greenhouse!!
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(24.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Estufa: ${greenhouse.value.name}", fontSize = 32.sp)
+            Text("Estufa: ${gh.name}", fontSize = 28.sp, fontWeight = FontWeight.Bold)
+            Button(onClick = onBack) { Text("Voltar") }
+        }
 
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                InfoCard("Temperatura", "${greenhouse.value.temperature}°C")
-                InfoCard("Umidade", "${greenhouse.value.humidity} g/m³")
-                InfoCard("Clima", greenhouse.value.weather)
-            }
+        Spacer(Modifier.height(24.dp))
 
-            Text("Módulos", fontSize = 24.sp)
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                greenhouse.value.modules.forEach {
-                    ModuleCard(it)
+        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            InfoCard("Temperatura", "${gh.temperature}°C")
+            InfoCard("Umidade", "${gh.humidity}%")
+            InfoCard("Clima", gh.weather)
+        }
+
+        Spacer(Modifier.height(32.dp))
+
+        Text("Módulos", fontSize = 24.sp, fontWeight = FontWeight.Medium)
+
+        Spacer(Modifier.height(16.dp))
+
+        val modulesPerRow = 4
+        val modules = gh.modules
+        val totalSlots = 4
+        val rows = (modules + List(totalSlots - modules.size) { null }).chunked(modulesPerRow)
+
+        rows.forEach { row ->
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.fillMaxWidth()) {
+                row.forEach { module ->
+                    if (module != null) {
+                        ModuleCard(module)
+                    } else {
+                        EmptySlot { showNewModule = true }
+                    }
                 }
-                repeat(4 - greenhouse.value.modules.size) {
-                    EmptySlot()
-                }
             }
+            Spacer(Modifier.height(16.dp))
+        }
 
-            Text("Configurações", fontSize = 24.sp)
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                Button(onClick = { }) { Text("Renomear") }
-                Button(onClick = { }) { Text("Atualizar") }
-                Button(onClick = { }) { Text("Desconectar") }
+        Spacer(Modifier.height(32.dp))
+
+        Text("Configurações da Estufa", fontSize = 20.sp)
+
+        Spacer(Modifier.height(8.dp))
+
+        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            Button(onClick = { showRename = true }) {
+                Text("Renomear")
             }
+            Button(onClick = {
+                scope.launch {
+                    try {
+                        val updated = client.get("/api/v1/dendro/$id").body<GreenhouseData>()
+                        greenhouse = updated
+                    } catch (e: Exception) {
+                        errorMessage = "Erro ao atualizar: ${e.message}"
+                    }
+                }
+            }) {
+                Text("Atualizar")
+            }
+            Button(onClick = { showDisconnect = true }) {
+                Text("Desconectar")
+            }
+        }
+
+        if (showRename) {
+            AlertDialog(
+                onDismissRequest = { showRename = false },
+                title = { Text("Renomear Estufa") },
+                text = {
+                    OutlinedTextField(
+                        value = newName,
+                        onValueChange = { newName = it },
+                        label = { Text("Novo nome") }
+                    )
+                },
+                confirmButton = {
+                    Button(onClick = {
+                        greenhouse = gh.copy(name = newName)
+                        showRename = false
+                        // PUT/POST backend se necessário
+                    }) { Text("Atualizar") }
+                },
+                dismissButton = {
+                    OutlinedButton(onClick = { showRename = false }) { Text("Cancelar") }
+                }
+            )
+        }
+
+        if (showDisconnect) {
+            AlertDialog(
+                onDismissRequest = { showDisconnect = false },
+                title = { Text("Desconectar Estufa") },
+                text = { Text("Deseja realmente desconectar a estufa?") },
+                confirmButton = {
+                    Button(onClick = {
+                        showDisconnect = false
+                        onBack()
+                    }) { Text("Confirmar") }
+                },
+                dismissButton = {
+                    OutlinedButton(onClick = { showDisconnect = false }) { Text("Cancelar") }
+                }
+            )
+        }
+
+        if (showNewModule) {
+            AlertDialog(
+                onDismissRequest = { showNewModule = false },
+                title = { Text("Cadastrar Módulo") },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedTextField(
+                            value = newModuleName,
+                            onValueChange = { newModuleName = it },
+                            label = { Text("Nome do módulo") }
+                        )
+                        OutlinedTextField(
+                            value = newModuleDesc,
+                            onValueChange = { newModuleDesc = it },
+                            label = { Text("Descrição") }
+                        )
+                    }
+                },
+                confirmButton = {
+                    Button(onClick = {
+                        greenhouse = gh.copy(
+                            modules = gh.modules + ModuleData(
+                                name = newModuleName,
+                                description = newModuleDesc,
+                                humidity = 80
+                            )
+                        )
+                        showNewModule = false
+                        newModuleName = ""
+                        newModuleDesc = ""
+                        // POST para backend se necessário
+                    }) { Text("Cadastrar") }
+                },
+                dismissButton = {
+                    OutlinedButton(onClick = { showNewModule = false }) { Text("Cancelar") }
+                }
+            )
         }
     }
 }
@@ -70,7 +232,12 @@ fun InfoCard(title: String, value: String) {
         elevation = 4.dp,
         backgroundColor = Color(0xFFDDEEDD)
     ) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.Center) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center
+        ) {
             Text(title, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
             Text(value, fontSize = 20.sp)
@@ -86,23 +253,30 @@ fun ModuleCard(module: ModuleData) {
         elevation = 4.dp,
         backgroundColor = Color(0xFFEEF7EE)
     ) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.Center) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center
+        ) {
             Text(module.name, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
-            Text("${module.humidity}g/m³", fontSize = 16.sp)
+            Text("${module.humidity} g/m³", fontSize = 16.sp)
         }
     }
 }
 
 @Composable
-fun EmptySlot() {
+fun EmptySlot(onClick: () -> Unit) {
     Card(
-        modifier = Modifier.size(150.dp),
+        modifier = Modifier
+            .size(150.dp)
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
         border = BorderStroke(1.dp, Color.Gray)
     ) {
-        Box(contentAlignment = Alignment.Center) {
-            Text("Slot Vazio", fontSize = 14.sp)
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("Slot Vazio", fontSize = 14.sp, color = Color.Gray)
         }
     }
 }

@@ -1,10 +1,9 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 plugins {
+    kotlin("plugin.serialization") version "1.9.23" // ✅ Necessário para @Serializable
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
@@ -12,12 +11,7 @@ plugins {
 }
 
 kotlin {
-    androidTarget {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
-        }
-    }
+    androidTarget() // ✅ REMOVIDO compilerOptions com erro
 
     jvm("desktop")
 
@@ -31,7 +25,6 @@ kotlin {
                 outputFileName = "composeApp.js"
                 devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
                     static = (static ?: mutableListOf()).apply {
-                        // Serve sources to debug inside browser
                         add(rootDirPath)
                         add(projectDirPath)
                     }
@@ -42,30 +35,52 @@ kotlin {
     }
 
     sourceSets {
-        val desktopMain by getting
+        val commonMain by getting {
+            dependencies {
+                implementation(compose.runtime)
+                implementation(compose.foundation)
+                implementation(compose.material)
+                implementation(compose.ui)
+                implementation(compose.components.resources)
+                implementation(compose.components.uiToolingPreview)
 
-        androidMain.dependencies {
-            implementation(compose.preview)
-            implementation(libs.androidx.activity.compose)
+                implementation(libs.androidx.lifecycle.viewmodel)
+                implementation(libs.androidx.lifecycle.runtime.compose)
+
+                implementation("com.russhwolf:multiplatform-settings:1.1.1")
+                implementation("io.ktor:ktor-client-core:2.3.4")
+                implementation("io.ktor:ktor-client-content-negotiation:2.3.4")
+                implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.4")
+                implementation("io.ktor:ktor-client-logging:2.3.4")
+
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+            }
         }
-        commonMain.dependencies {
-            implementation(compose.runtime)
-            implementation(compose.foundation)
-            implementation(compose.material)
-            implementation(compose.ui)
-            implementation(compose.components.resources)
-            implementation(compose.components.uiToolingPreview)
-            implementation(libs.androidx.lifecycle.viewmodel)
-            implementation(libs.androidx.lifecycle.runtime.compose)
+
+        val androidMain by getting {
+            dependencies {
+                implementation(compose.preview)
+                implementation(libs.androidx.activity.compose)
+                implementation("io.ktor:ktor-client-okhttp:2.3.4")
+            }
         }
-        desktopMain.dependencies {
-            implementation(compose.desktop.currentOs)
-            implementation(libs.kotlinx.coroutines.swing)
+
+        val desktopMain by getting {
+            dependencies {
+                implementation(compose.desktop.currentOs)
+                implementation(libs.kotlinx.coroutines.swing)
+                implementation("io.ktor:ktor-client-java:2.3.4")
+            }
+        }
+
+        val wasmJsMain by getting {
+            dependencies {
+                // WASM ainda experimental
+            }
         }
     }
 }
 
-// ✅ Registro de diretório de recursos da sourceSet comum (fora do bloco `kotlin`)
 kotlin.sourceSets["commonMain"].resources.srcDir("src/commonMain/resources")
 
 android {
@@ -80,6 +95,11 @@ android {
         versionName = "1.0"
     }
 
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -91,11 +111,6 @@ android {
             isMinifyEnabled = false
         }
     }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
 }
 
 dependencies {
@@ -104,14 +119,16 @@ dependencies {
     implementation(libs.androidx.compose.material)
     implementation(libs.androidx.ui.geometry.android)
     implementation(libs.androidx.ui.graphics.android)
-    implementation(libs.ui.android)
     implementation(libs.androidx.foundation.android)
+    implementation(libs.androidx.compose.ui.ui.android)
+    implementation(libs.ui.android)
+
     debugImplementation(compose.uiTooling)
+
     implementation("androidx.compose.material:material:1.6.0")
     implementation("androidx.compose.foundation:foundation:1.6.0")
     implementation("androidx.compose.ui:ui:1.6.0")
     implementation("androidx.compose.material:material-icons-extended:1.6.0")
-
 }
 
 compose.desktop {

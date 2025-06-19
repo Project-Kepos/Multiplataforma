@@ -2,9 +2,7 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.*
@@ -17,11 +15,10 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun SearchingGreenhouse(
-    greenhouseCode: String = "ABCD-EFGH-IJKL"
+    idDendro: String,
+    onCancel: () -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
-
-        // Botão cancelar no canto superior direito
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -30,15 +27,16 @@ fun SearchingGreenhouse(
             horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = Icons.Default.Close,
-                contentDescription = "Cancelar"
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(text = "Cancelar", fontSize = 18.sp)
+            TextButton(onClick = onCancel) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Cancelar"
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = "Cancelar", fontSize = 18.sp)
+            }
         }
 
-        // Conteúdo centralizado
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -47,12 +45,10 @@ fun SearchingGreenhouse(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             DotsLoader()
-
             Spacer(modifier = Modifier.height(32.dp))
-
             Text(text = "Buscando Estufa", fontSize = 28.sp)
             Text(
-                text = greenhouseCode,
+                text = idDendro,
                 fontSize = 22.sp,
                 modifier = Modifier.padding(top = 8.dp)
             )

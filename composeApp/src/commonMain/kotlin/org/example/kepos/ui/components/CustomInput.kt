@@ -21,13 +21,16 @@ import androidx.compose.material.Text
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import org.example.kepos.ui.themes.KeposColors
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation.Companion.None
 
 @Composable
 fun CustomInputText(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    visualTransformation: VisualTransformation = None // 👈 Adicionado aqui
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isFocused by interactionSource.collectIsFocusedAsState()
@@ -39,7 +42,7 @@ fun CustomInputText(
 
     Box(
         modifier = modifier
-            .fillMaxWidth() // LARGURA TOTAL
+            .fillMaxWidth()
             .padding(vertical = 16.dp)
             .drawBehind {
                 val strokeWidth = 3.dp.toPx()
@@ -61,6 +64,7 @@ fun CustomInputText(
                 color = Color.Black,
                 fontSize = 28.sp
             ),
+            visualTransformation = visualTransformation, // 👈 Aplicado aqui
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color.Transparent),

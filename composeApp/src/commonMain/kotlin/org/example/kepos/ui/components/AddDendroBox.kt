@@ -20,18 +20,20 @@ import org.example.kepos.ui.themes.KeposColors
 
 // fun AddDendroBox(navController: NavController) {
 @Composable
-fun AddDendroBox() {
+fun AddDendroBox(
+    // By using a lambda, this component doesn't need to know
+    // anything about navigation. It just reports that it was clicked.
+    onClick: () -> Unit
+) {
     Box(
         modifier = Modifier
             .padding(top = 10.dp)
             .widthIn(min = 179.dp)
             .height(179.dp)
-            .clickable {
-                // TODO: Habilite a navegação quando a tela estiver pronta
-                // navController.navigate("add_greenhouse")
-            },
+            .clickable { onClick() }, // Simply call the passed-in function
         contentAlignment = Alignment.Center
     ) {
+        // ... The rest of the code (Canvas, Column) remains the same
         Canvas(modifier = Modifier.fillMaxSize()) {
             drawRoundRect(
                 color = KeposColors.Green500,
@@ -51,7 +53,7 @@ fun AddDendroBox() {
         ) {
             Icon(
                 imageVector = Icons.Default.Add,
-                contentDescription = null,
+                contentDescription = "Adicionar Estufa", // Improved content description
                 modifier = Modifier.size(40.dp),
                 tint = KeposColors.Green500
             )

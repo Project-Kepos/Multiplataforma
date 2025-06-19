@@ -1,35 +1,57 @@
 package org.example.kepos
 
+import AddGreenhouseScreen
 import GreenhouseScreen
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import SignInScreen
+import SignUpScreen
+import org.example.kepos.ui.screens.MyAccountScreen
 
-import keposmultiplataforma.composeapp.generated.resources.Res
-import keposmultiplataforma.composeapp.generated.resources.compose_multiplatform
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import org.example.kepos.ui.components.GreenButton
-import org.example.kepos.ui.screens.AddGreenhouse
-import org.example.kepos.ui.screens.HomeScreen
-import org.example.kepos.ui.screens.SignInScreen
-import org.example.kepos.ui.screens.SignUpScreen
+import org.example.kepos.ui.screens.*
+
+sealed class Screen {
+    object SignIn : Screen()
+    object SignUp : Screen()
+    object Home : Screen()
+    object AddGreenhouse : Screen()
+    data class Greenhouse(val id: String) : Screen()
+    object MyAccount : Screen()
+}
+
 
 @Composable
-@Preview
 fun App() {
+    var currentScreen by remember { mutableStateOf<Screen>(Screen.SignIn) }
+
     MaterialTheme {
-        AddGreenhouse()
+        when (val screen = currentScreen) {
+            is Screen.SignIn -> SignInScreen(
+                onSignInSuccess = { currentScreen = Screen.Home },
+                onNavigateToSignUp = { currentScreen = Screen.SignUp }
+            )
+            is Screen.SignUp -> SignUpScreen(
+                onSignUpSuccess = { currentScreen = Screen.Home },
+                onNavigateToSignIn = { currentScreen = Screen.SignIn }
+            )
+            is Screen.Home -> HomeScreen(
+                onNavigateToAddGreenhouse = { currentScreen = Screen.AddGreenhouse },
+                onNavigateToGreenhouse = { dendroId -> currentScreen = Screen.Greenhouse(dendroId) },
+                onNavigateToAccount = { currentScreen = Screen.MyAccount },
+                onLogout = { currentScreen = Screen.SignIn }
+            )
+            is Screen.AddGreenhouse -> AddGreenhouseScreen(
+                onBack = { currentScreen = Screen.Home }
+            )
+            is Screen.Greenhouse -> GreenhouseScreen(
+                id = screen.id,
+                onBack = { currentScreen = Screen.Home }
+            )
+            is Screen.MyAccount -> MyAccountScreen(
+                onBack = { currentScreen = Screen.Home },
+                onLogout = { currentScreen = Screen.SignIn }
+            )
         }
     }
+}
