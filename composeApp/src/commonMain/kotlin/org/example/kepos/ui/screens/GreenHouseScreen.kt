@@ -15,6 +15,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.bodyAsText
 import io.ktor.util.network.*
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import org.example.kepos.lib.createHttpClient
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -88,7 +89,7 @@ fun GreenhouseScreen(onBack: () -> Unit = {}, id: String) {
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             InfoCard("Temperatura", "${gh.temperature}°C")
             InfoCard("Umidade", "${gh.humidity}%")
-            InfoCard("Clima", gh.weather)
+            InfoCard("Luminosidade", "${gh.luminosity}")
         }
 
         Spacer(Modifier.height(32.dp))
@@ -157,7 +158,6 @@ fun GreenhouseScreen(onBack: () -> Unit = {}, id: String) {
                     Button(onClick = {
                         greenhouse = gh.copy(name = newName)
                         showRename = false
-                        // PUT/POST backend se necessário
                     }) { Text("Atualizar") }
                 },
                 dismissButton = {
@@ -207,13 +207,12 @@ fun GreenhouseScreen(onBack: () -> Unit = {}, id: String) {
                             modules = gh.modules + ModuleData(
                                 name = newModuleName,
                                 description = newModuleDesc,
-                                humidity = 80
+                                humidity = 80.0
                             )
                         )
                         showNewModule = false
                         newModuleName = ""
                         newModuleDesc = ""
-                        // POST para backend se necessário
                     }) { Text("Cadastrar") }
                 },
                 dismissButton = {
@@ -281,16 +280,20 @@ fun EmptySlot(onClick: () -> Unit) {
     }
 }
 
+@Serializable
 data class GreenhouseData(
+    val id: String,
     val name: String,
-    val temperature: Int,
-    val humidity: Int,
-    val weather: String,
-    val modules: List<ModuleData>
+    val temperature: Double,
+    val humidity: Double,
+    val luminosity: Int,
+    val weather: String = "",
+    val modules: List<ModuleData> = emptyList()
 )
 
+@Serializable
 data class ModuleData(
     val name: String,
     val description: String,
-    val humidity: Int
+    val humidity: Double
 )
