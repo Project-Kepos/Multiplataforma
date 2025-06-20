@@ -12,6 +12,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.example.kepos.ui.themes.KeposColors
 
 @Composable
 fun SearchingGreenhouse(
@@ -27,7 +28,12 @@ fun SearchingGreenhouse(
             horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            TextButton(onClick = onCancel) {
+            TextButton(
+                onClick = onCancel,
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = KeposColors.Green500
+                )
+            ) {
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = "Cancelar"
@@ -71,7 +77,7 @@ fun DotsLoader() {
                 modifier = Modifier
                     .size(16.dp)
                     .scale(scale)
-                    .background(Color(0xFF2F855A), CircleShape)
+                    .background(KeposColors.Green500, CircleShape)
             )
         }
     }

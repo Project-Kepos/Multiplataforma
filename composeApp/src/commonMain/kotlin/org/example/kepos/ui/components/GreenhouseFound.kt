@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun GreenhouseFound(onBackClick: () -> Unit = {}) {
+fun GreenhouseFound(onBackClick: () -> Unit = {}, onBack: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize(),
@@ -39,7 +39,7 @@ fun GreenhouseFound(onBackClick: () -> Unit = {}) {
             )
             Spacer(modifier = Modifier.height(32.dp))
             Button(
-                onClick = onBackClick,
+                onClick = onBack,
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = Color.Transparent,
                     contentColor = Color(0xFF38A169)

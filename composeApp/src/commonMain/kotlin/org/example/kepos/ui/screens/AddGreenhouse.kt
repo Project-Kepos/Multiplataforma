@@ -4,7 +4,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import io.ktor.client.*
+import androidx.compose.ui.unit.sp
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.plugins.ServerResponseException
@@ -111,7 +111,7 @@ fun AddGreenhouseScreen(onBack: () -> Unit) {
             ),
             elevation = null,
         ) {
-            Text("← Voltar")
+            Text("← Voltar para tela inicial", fontSize = 18.sp,)
         }
 /*
         if (errorWhileSearching) {
@@ -132,8 +132,8 @@ fun AddGreenhouseScreen(onBack: () -> Unit) {
                 idDendro = idDendro,
                 onCancel = { resetAllStates() }
             )
-            greenhouseWasFound -> GreenhouseFound()
-            greenhouseAlreadyRegistered -> GreenhouseAlreadyRegistered()
+            greenhouseWasFound -> GreenhouseFound { resetAllStates() }
+            greenhouseAlreadyRegistered -> GreenhouseAlreadyRegistered { resetAllStates() }
             errorWhileSearching -> GreenhouseNotFound(onBack = { resetAllStates() })
             else -> NewGreenhouse(
                 idDendro = idDendro,

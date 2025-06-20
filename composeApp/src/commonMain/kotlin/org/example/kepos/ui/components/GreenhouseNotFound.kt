@@ -39,10 +39,6 @@ fun GreenhouseNotFound(onBack: () -> Unit, httpStatusCode: Int? = null) {
                 textAlign = TextAlign.Center
             )
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Erro HTTP: $httpStatusCode",
-                    color = Color.Red
-                )
 
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -61,7 +57,7 @@ fun GreenhouseNotFound(onBack: () -> Unit, httpStatusCode: Int? = null) {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Voltar",
+                    text = "Tentar novamente",
                     fontWeight = FontWeight.W200,
                     fontSize = 18.sp
                 )
